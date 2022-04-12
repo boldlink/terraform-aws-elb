@@ -47,9 +47,9 @@ variable "internal" {
 }
 
 variable "listener" {
-  type        = map(string)
+  type        = list(map(string))
   description = "(Required) A list of listener blocks."
-  default     = {}
+  default     = []
 }
 
 variable "health_check" {

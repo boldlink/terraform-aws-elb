@@ -15,13 +15,13 @@ resource "aws_elb" "main" {
   connection_draining_timeout = var.connection_draining_timeout
   desync_mitigation_mode      = var.desync_mitigation_mode
   dynamic "listener" {
-    for_each = length(keys(var.listener)) == 0 ? [] : [var.listener]
+    for_each = var.listener
     content {
-      instance_port      = lookup(listener.value, "instance_port", null)
-      instance_protocol  = lookup(listener.value, "instance_protocol", null)
-      lb_port            = lookup(listener.value, "lb_port", null)
-      lb_protocol        = lookup(listener.value, "lb_protocol", null)
-      ssl_certificate_id = lookup(listener.value, "ssl_certificate_id", null)
+      instance_port      = listener.value.instance_port
+      instance_protocol  = listener.value.instance_protocol
+      lb_port            = listener.value.lb_port
+      lb_protocol        = listener.value.lb_protocol
+      ssl_certificate_id = listener.value.lb_protocol == "HTTPS" || listener.value.lb_protocol == "SSL" ? lookup(listener.value, "ssl_certificate_id", null) : null
     }
   }
   dynamic "access_logs" {
@@ -33,15 +33,13 @@ resource "aws_elb" "main" {
       enabled       = lookup(access_logs.value, "enabled", true)
     }
   }
-  dynamic "health_check" {
-    for_each = length(keys(var.health_check)) == 0 ? [] : [var.health_check]
-    content {
-      healthy_threshold   = lookup(health_check.value, "healthy_threshold", null)
-      unhealthy_threshold = lookup(health_check.value, "unhealthy_threshold", null)
-      target              = lookup(health_check.value, "target", null)
-      interval            = lookup(health_check.value, "interval", null)
-      timeout             = lookup(health_check.value, "timeout", null)
-    }
+
+  health_check {
+    healthy_threshold   = lookup(var.health_check, "healthy_threshold")
+    unhealthy_threshold = lookup(var.health_check, "unhealthy_threshold")
+    target              = lookup(var.health_check, "target")
+    interval            = lookup(var.health_check, "interval")
+    timeout             = lookup(var.health_check, "timeout")
   }
   tags = var.tags
 }
