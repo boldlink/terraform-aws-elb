@@ -26,7 +26,7 @@ resource "aws_elb" "main" {
       instance_protocol  = listener.value.instance_protocol
       lb_port            = listener.value.lb_port
       lb_protocol        = listener.value.lb_protocol
-      ssl_certificate_id = listener.value.lb_protocol == "HTTPS" || listener.value.lb_protocol == "SSL" ? lookup(listener.value, "ssl_certificate_id", null) : null
+      ssl_certificate_id = listener.value.lb_protocol == "https" || listener.value.lb_protocol == "ssl" ? lookup(listener.value, "ssl_certificate_id", null) : null
     }
   }
 
