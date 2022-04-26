@@ -97,7 +97,6 @@ variable "tags" {
 variable "load_balancer_policies" {
   type        = any
   description = "Load balancer policy resource block for single or multiple resources"
-  default     = {}
 }
 
 variable "create_access_logs_bucket" {
