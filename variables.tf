@@ -94,21 +94,9 @@ variable "tags" {
   default     = {}
 }
 
-variable "policy_name" {
-  type        = string
-  description = "(Required) The name of the load balancer policy."
-  default     = null
-}
-
-variable "policy_type_name" {
-  type        = string
-  description = "(Required) The policy type."
-  default     = null
-}
-
-variable "loadbalancer_policy_attribute" {
-  type        = map(string)
-  description = "(Optional) Policy attribute to apply to the policy."
+variable "load_balancer_policies" {
+  type        = any
+  description = "Load balancer policy resource block for single or multiple resources"
   default     = {}
 }
 

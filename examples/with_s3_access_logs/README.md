@@ -1,4 +1,4 @@
-# examples
+# with_s3_access_logs
 
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
@@ -9,14 +9,14 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.8.0 |
-| <a name="provider_random"></a> [random](#provider\_random) | 3.1.2 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.11.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | 3.1.3 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_elb"></a> [elb](#module\_elb) | ./.. | n/a |
+| <a name="module_complete_elb"></a> [complete\_elb](#module\_complete\_elb) | boldlink/elb/aws | n/a |
 
 ## Resources
 

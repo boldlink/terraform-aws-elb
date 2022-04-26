@@ -32,13 +32,18 @@ resource "random_string" "random" {
   upper   = false
 }
 
-module "elb" {
-  source             = "./.."
+module "complete_elb" {
+  source             = "boldlink/elb/aws"
   name               = "${random_string.random.id}-elb"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [data.aws_security_group.default.id]
   availability_zones = data.aws_availability_zones.available.names
   idle_timeout       = 400
+
+  ## S3 Access logs bucket
+  create_access_logs_bucket = true
+
+  # Health check
   health_check = {
     healthy_threshold   = 2
     unhealthy_threshold = 2
@@ -46,11 +51,19 @@ module "elb" {
     target              = "HTTP:8000/"
     interval            = 30
   }
+
+  # Listeners
   listener = [
     {
       instance_port     = 8080
       instance_protocol = "http"
       lb_port           = 80
+      lb_protocol       = "http"
+    },
+    {
+      instance_port     = 3000
+      instance_protocol = "http"
+      lb_port           = 3000
       lb_protocol       = "http"
     }
   ]
@@ -58,6 +71,6 @@ module "elb" {
 
 output "outputs" {
   value = [
-    module.elb,
+    module.complete_elb,
   ]
 }
