@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "elb_s3" {
     ]
     effect = "Allow"
     resources = [
-      "${join("", aws_s3_bucket.access_logs.*.arn)}/*",
+      "${try(aws_s3_bucket.access_logs[0].arn, "")}/*",
     ]
 
     principals {
@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "elb_s3" {
       "s3:PutObject"
     ]
     effect    = "Allow"
-    resources = ["${join("", aws_s3_bucket.access_logs.*.arn)}/*"]
+    resources = ["${try(aws_s3_bucket.access_logs[0].arn, "")}/*"]
     principals {
       identifiers = ["delivery.logs.amazonaws.com"]
       type        = "Service"
@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "elb_s3" {
       "s3:GetBucketAcl"
     ]
     effect    = "Allow"
-    resources = ["${join("", aws_s3_bucket.access_logs.*.arn)}"]
+    resources = ["${try(aws_s3_bucket.access_logs[0].arn, "")}"]
     principals {
       identifiers = ["delivery.logs.amazonaws.com"]
       type        = "Service"
