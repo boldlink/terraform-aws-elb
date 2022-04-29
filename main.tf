@@ -2,11 +2,12 @@
 ### ELB
 ########################################################
 locals {
-  name = coalesce(var.name, "sample-elb0")
+  name            = var.name
+  service_account = data.aws_elb_service_account.main.arn
 }
 
 resource "aws_elb" "main" {
-  name                        = var.name
+  name                        = local.name
   availability_zones          = var.subnets != null ? null : var.availability_zones
   name_prefix                 = var.name_prefix
   security_groups             = var.security_groups
@@ -59,6 +60,7 @@ resource "aws_s3_bucket" "access_logs" {
 }
 
 resource "aws_s3_bucket_policy" "access_logs" {
+  count  = var.create_access_logs_bucket ? 1 : 0
   bucket = aws_s3_bucket.access_logs[0].id
   policy = data.aws_iam_policy_document.elb_s3.json
 }

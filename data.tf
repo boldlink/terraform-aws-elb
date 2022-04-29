@@ -14,7 +14,7 @@ data "aws_iam_policy_document" "elb_s3" {
     ]
 
     principals {
-      identifiers = ["${data.aws_elb_service_account.main.arn}"]
+      identifiers = ["${local.service_account}"]
       type        = "AWS"
     }
   }
