@@ -46,8 +46,8 @@ variable "internal" {
   default     = false
 }
 
-variable "listener" {
-  type        = list(map(string))
+variable "listeners" {
+  type        = list(any)
   description = "(Required) A list of listener blocks."
   default     = []
 }
@@ -56,6 +56,12 @@ variable "health_check" {
   type        = map(string)
   description = "(Optional) A health_check block."
   default     = {}
+}
+
+variable "elb_additional_s3_policy" {
+  type        = any
+  description = "Provide additional custom policy for ELB access to S3 bucket created in the module."
+  default     = []
 }
 
 variable "cross_zone_load_balancing" {

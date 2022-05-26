@@ -21,13 +21,13 @@ resource "aws_elb" "main" {
   desync_mitigation_mode      = var.desync_mitigation_mode
 
   dynamic "listener" {
-    for_each = var.listener
+    for_each = var.listeners
     content {
       instance_port      = listener.value.instance_port
       instance_protocol  = listener.value.instance_protocol
       lb_port            = listener.value.lb_port
       lb_protocol        = listener.value.lb_protocol
-      ssl_certificate_id = listener.value.lb_protocol == "https" || listener.value.lb_protocol == "ssl" ? lookup(listener.value, "ssl_certificate_id", null) : null
+      ssl_certificate_id = try(listener.value.ssl_certificate_id, null)
     }
   }
 
@@ -41,13 +41,17 @@ resource "aws_elb" "main" {
     }
   }
 
-  health_check {
-    healthy_threshold   = lookup(var.health_check, "healthy_threshold")
-    unhealthy_threshold = lookup(var.health_check, "unhealthy_threshold")
-    target              = lookup(var.health_check, "target")
-    interval            = lookup(var.health_check, "interval")
-    timeout             = lookup(var.health_check, "timeout")
+  dynamic "health_check" {
+    for_each = length(keys(var.health_check)) == 0 ? [] : [var.health_check]
+    content {
+      healthy_threshold   = try(health_check.value.healthy_threshold, null)
+      unhealthy_threshold = try(health_check.value.unhealthy_threshold, null)
+      target              = try(health_check.value.target, null)
+      interval            = try(health_check.value.interval, null)
+      timeout             = try(health_check.value.timeout, null)
+    }
   }
+
   tags = var.tags
 }
 
