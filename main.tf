@@ -84,7 +84,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = var.access_logs_sse_algorithm
+      kms_master_key_id = var.access_logs_sse_algorithm == "aws:kms" ? var.access_logs_kms_id : null
     }
   }
 }

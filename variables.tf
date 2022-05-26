@@ -46,6 +46,18 @@ variable "internal" {
   default     = false
 }
 
+variable "access_logs_kms_id" {
+  type        = string
+  description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access_logs_sse_algorithm as `aws:kms`."
+  default     = false
+}
+
+variable "access_logs_sse_algorithm" {
+  type        = string
+  description = "The server-side encryption algorithm to use for the elb access logs bucket. Valid values are `AES256` and `aws:kms`"
+  default     = "AES256"
+}
+
 variable "listeners" {
   type        = list(any)
   description = "(Required) A list of listener blocks."

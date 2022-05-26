@@ -8,3 +8,4 @@ skip-check:
 - CKV_AWS_92  #Ensure the ELB has access logging enabled. For the minimal example, this is not enabled
 - CKV_AWS_144 #Ensure that S3 bucket has cross-region replication enabled
 - CKV_AWS_18  #Ensure the S3 bucket has access logging enabled
+- CKV_AWS_145 #Ensure that S3 buckets are encrypted with KMS by default:: We are using the default `aws/s3`. This can be overwriten by providing the value of `access_logs_kms_id`
