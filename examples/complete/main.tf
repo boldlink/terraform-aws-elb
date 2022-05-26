@@ -25,6 +25,10 @@ resource "tls_self_signed_cert" "example" {
 resource "aws_acm_certificate" "main" {
   private_key      = tls_private_key.example.private_key_pem
   certificate_body = tls_self_signed_cert.example.cert_pem
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 ############################

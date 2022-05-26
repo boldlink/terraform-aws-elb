@@ -69,6 +69,34 @@ resource "aws_s3_bucket_policy" "access_logs" {
   policy = data.aws_iam_policy_document.elb_s3.json
 }
 
+resource "aws_s3_bucket_public_access_block" "access_logs" {
+  count                   = var.create_access_logs_bucket ? 1 : 0
+  bucket                  = aws_s3_bucket.access_logs[0].bucket
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs" {
+  count  = var.create_access_logs_bucket ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "trail_versioning" {
+  count  = var.create_access_logs_bucket ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 ########################################################
 ### ELB Policy: commonly for ssl negotiation
 ########################################################
