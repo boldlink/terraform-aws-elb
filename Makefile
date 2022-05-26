@@ -1,4 +1,5 @@
 CURRENT_DIR = $(shell pwd)
+
 EXAMPLES_PATH = $(CURRENT_DIR)/examples/*
 MODULES_PATH = $(CURRENT_DIR)/modules/*
 SUBDIRS := $(shell find $(EXAMPLES_PATH) -maxdepth 0 -type d)
