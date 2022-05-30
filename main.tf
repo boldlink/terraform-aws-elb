@@ -1,8 +1,13 @@
 ########################################################
 ### ELB
 ########################################################
+locals {
+  name            = var.name
+  service_account = data.aws_elb_service_account.main.arn
+}
+
 resource "aws_elb" "main" {
-  name                        = var.name
+  name                        = local.name
   availability_zones          = var.subnets != null ? null : var.availability_zones
   name_prefix                 = var.name_prefix
   security_groups             = var.security_groups
@@ -14,16 +19,18 @@ resource "aws_elb" "main" {
   connection_draining         = var.connection_draining
   connection_draining_timeout = var.connection_draining_timeout
   desync_mitigation_mode      = var.desync_mitigation_mode
+
   dynamic "listener" {
-    for_each = var.listener
+    for_each = var.listeners
     content {
       instance_port      = listener.value.instance_port
       instance_protocol  = listener.value.instance_protocol
       lb_port            = listener.value.lb_port
       lb_protocol        = listener.value.lb_protocol
-      ssl_certificate_id = listener.value.lb_protocol == "HTTPS" || listener.value.lb_protocol == "SSL" ? lookup(listener.value, "ssl_certificate_id", null) : null
+      ssl_certificate_id = try(listener.value.ssl_certificate_id, null)
     }
   }
+
   dynamic "access_logs" {
     for_each = length(keys(var.access_logs)) == 0 ? [] : [var.access_logs]
     content {
@@ -34,13 +41,17 @@ resource "aws_elb" "main" {
     }
   }
 
-  health_check {
-    healthy_threshold   = lookup(var.health_check, "healthy_threshold")
-    unhealthy_threshold = lookup(var.health_check, "unhealthy_threshold")
-    target              = lookup(var.health_check, "target")
-    interval            = lookup(var.health_check, "interval")
-    timeout             = lookup(var.health_check, "timeout")
+  dynamic "health_check" {
+    for_each = length(keys(var.health_check)) == 0 ? [] : [var.health_check]
+    content {
+      healthy_threshold   = try(health_check.value.healthy_threshold, null)
+      unhealthy_threshold = try(health_check.value.unhealthy_threshold, null)
+      target              = try(health_check.value.target, null)
+      interval            = try(health_check.value.interval, null)
+      timeout             = try(health_check.value.timeout, null)
+    }
   }
+
   tags = var.tags
 }
 
@@ -49,18 +60,54 @@ resource "aws_elb" "main" {
 ########################################################
 resource "aws_s3_bucket" "access_logs" {
   count  = var.create_access_logs_bucket ? 1 : 0
-  bucket = "${var.name}-acess-logs-bucket"
+  bucket = "${local.name}-acess-logs-bucket"
 }
+
+resource "aws_s3_bucket_policy" "access_logs" {
+  count  = var.create_access_logs_bucket ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+  policy = data.aws_iam_policy_document.elb_s3.json
+}
+
+resource "aws_s3_bucket_public_access_block" "access_logs" {
+  count                   = var.create_access_logs_bucket ? 1 : 0
+  bucket                  = aws_s3_bucket.access_logs[0].bucket
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs" {
+  count  = var.create_access_logs_bucket ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].bucket
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = var.access_logs_sse_algorithm
+      kms_master_key_id = var.access_logs_sse_algorithm == "aws:kms" ? var.access_logs_kms_id : null
+    }
+  }
+}
+
+resource "aws_s3_bucket_versioning" "trail_versioning" {
+  count  = var.create_access_logs_bucket ? 1 : 0
+  bucket = aws_s3_bucket.access_logs[0].id
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
 ########################################################
-### ELB Policy
+### ELB Policy: commonly for ssl negotiation
 ########################################################
 resource "aws_load_balancer_policy" "main" {
-  count              = var.policy_name != null ? 1 : 0
+  for_each           = var.load_balancer_policies
   load_balancer_name = aws_elb.main.name
-  policy_name        = var.policy_name
-  policy_type_name   = var.policy_type_name
+  policy_name        = try(each.value.policy_name, each.key)
+  policy_type_name   = try(each.value.policy_type_name, each.key)
   dynamic "policy_attribute" {
-    for_each = var.loadbalancer_policy_attribute
+    for_each = try([each.value.policy_attribute], [])
     content {
       name  = lookup(policy_attribute.value, "name", null)
       value = lookup(policy_attribute.value, "value", null)

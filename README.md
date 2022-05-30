@@ -1,28 +1,57 @@
+[![Build Status](https://github.com/boldlink/terraform-aws-elb/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/boldlink/terraform-aws-elb/actions)
+
+[<img src="https://avatars.githubusercontent.com/u/25388280?s=200&v=4" width="96"/>](https://boldlink.io)
+
 # AWS Elastic Load Balancer Terraform module
 
 ## Description
 
-This terraform module creates an Elastic Load Balancer and Access logs bucket if specified
+This terraform module creates an Elastic Load Balancer (Commonly known as Classic Load Balancer) and Access logs bucket if specified
 
-Example available [here](https://github.com/boldlink/terraform-aws-elb/tree/main/examples/main.tf)
+Examples available [here](https://github.com/boldlink/terraform-aws-elb/tree/main/examples/main.tf)
+
+## Usage
+*NOTE*: These examples use the latest version of this module
+
+```hcl
+module "elb" {
+  source             = "../../"
+  name               = "minimal-example-elb"
+  subnets            = data.aws_subnets.default.ids
+  security_groups    = [data.aws_security_group.default.id]
+  availability_zones = data.aws_availability_zones.available.names
+
+  # Listeners
+  listeners = [
+    {
+      instance_port     = 8080
+      instance_protocol = "http"
+      lb_port           = 80
+      lb_protocol       = "http"
+    }
+  ]
+}
+```
 
 ## Documentation
 
 [AWS Elastic Load Balancer documentation](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/introduction.html)
 
 [Terraform provider documentation](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb)
+
 <!-- BEGINNING OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 3.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.11 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 3.75.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 4.15.1 |
 
 ## Modules
 
@@ -35,28 +64,35 @@ No modules.
 | [aws_elb.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb) | resource |
 | [aws_load_balancer_policy.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/load_balancer_policy) | resource |
 | [aws_s3_bucket.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
+| [aws_s3_bucket_policy.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
+| [aws_s3_bucket_public_access_block.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
+| [aws_s3_bucket_server_side_encryption_configuration.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
+| [aws_s3_bucket_versioning.trail_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
+| [aws_elb_service_account.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/elb_service_account) | data source |
+| [aws_iam_policy_document.elb_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_logs"></a> [access\_logs](#input\_access\_logs) | (Optional) An Access Logs block. | `map(string)` | `{}` | no |
+| <a name="input_access_logs_kms_id"></a> [access\_logs\_kms\_id](#input\_access\_logs\_kms\_id) | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access\_logs\_sse\_algorithm as `aws:kms`. | `string` | `false` | no |
+| <a name="input_access_logs_sse_algorithm"></a> [access\_logs\_sse\_algorithm](#input\_access\_logs\_sse\_algorithm) | The server-side encryption algorithm to use for the elb access logs bucket. Valid values are `AES256` and `aws:kms` | `string` | `"AES256"` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | (Required for an EC2-classic ELB) The AZ's to serve traffic in. | `list(string)` | `[]` | no |
 | <a name="input_connection_draining"></a> [connection\_draining](#input\_connection\_draining) | (Optional) Boolean to enable connection draining. Default: `false` | `bool` | `false` | no |
 | <a name="input_connection_draining_timeout"></a> [connection\_draining\_timeout](#input\_connection\_draining\_timeout) | (Optional) The time in seconds to allow for connections to drain. Default: `300` | `number` | `300` | no |
 | <a name="input_create_access_logs_bucket"></a> [create\_access\_logs\_bucket](#input\_create\_access\_logs\_bucket) | Specify whether to create access logs bucket | `bool` | `false` | no |
 | <a name="input_cross_zone_load_balancing"></a> [cross\_zone\_load\_balancing](#input\_cross\_zone\_load\_balancing) | (Optional) Enable cross-zone load balancing. | `bool` | `true` | no |
 | <a name="input_desync_mitigation_mode"></a> [desync\_mitigation\_mode](#input\_desync\_mitigation\_mode) | (Optional) Determines how the load balancer handles requests that might pose a security risk to an application due to HTTP desync. Valid values are `monitor`, `defensive` (default), `strictest`. | `string` | `"defensive"` | no |
+| <a name="input_elb_additional_s3_policy"></a> [elb\_additional\_s3\_policy](#input\_elb\_additional\_s3\_policy) | Provide additional custom policy for ELB access to S3 bucket created in the module. | `any` | `[]` | no |
 | <a name="input_health_check"></a> [health\_check](#input\_health\_check) | (Optional) A health\_check block. | `map(string)` | `{}` | no |
 | <a name="input_idle_timeout"></a> [idle\_timeout](#input\_idle\_timeout) | (Optional) The time in seconds that the connection is allowed to be idle. Default: `60` | `number` | `60` | no |
 | <a name="input_instances"></a> [instances](#input\_instances) | (Optional) A list of instance ids to place in the ELB pool. | `list(string)` | `[]` | no |
 | <a name="input_internal"></a> [internal](#input\_internal) | (Optional) If true, ELB will be an internal ELB. | `bool` | `false` | no |
-| <a name="input_listener"></a> [listener](#input\_listener) | (Required) A list of listener blocks. | `list(map(string))` | `[]` | no |
-| <a name="input_loadbalancer_policy_attribute"></a> [loadbalancer\_policy\_attribute](#input\_loadbalancer\_policy\_attribute) | (Optional) Policy attribute to apply to the policy. | `map(string)` | `{}` | no |
+| <a name="input_listeners"></a> [listeners](#input\_listeners) | (Required) A list of listener blocks. | `list(any)` | `[]` | no |
+| <a name="input_load_balancer_policies"></a> [load\_balancer\_policies](#input\_load\_balancer\_policies) | Load balancer policy resource block for single or multiple resources | `any` | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | (Optional) The name of the ELB. By default generated by Terraform. | `string` | `null` | no |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | (Optional, Forces new resource) Creates a unique name beginning with the specified prefix. Conflicts with `name` | `string` | `null` | no |
-| <a name="input_policy_name"></a> [policy\_name](#input\_policy\_name) | (Required) The name of the load balancer policy. | `string` | `null` | no |
-| <a name="input_policy_type_name"></a> [policy\_type\_name](#input\_policy\_type\_name) | (Required) The policy type. | `string` | `null` | no |
 | <a name="input_security_groups"></a> [security\_groups](#input\_security\_groups) | (Optional) A list of security group IDs to assign to the ELB. Only valid if creating an ELB within a VPC | `list(string)` | `[]` | no |
 | <a name="input_subnets"></a> [subnets](#input\_subnets) | (Required for a VPC ELB) A list of subnet IDs to attach to the ELB. | `list(string)` | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | (Optional) A map of tags to assign to the resource. | `map(string)` | `{}` | no |
@@ -75,3 +111,25 @@ No modules.
 | <a name="output_tags_all"></a> [tags\_all](#output\_tags\_all) | A map of tags assigned to the resource |
 | <a name="output_zone_id"></a> [zone\_id](#output\_zone\_id) | The canonical hosted zone ID of the ELB (to be used in a Route 53 Alias record) |
 <!-- END OF PRE-COMMIT-TERRAFORM DOCS HOOK -->
+
+## Third party software
+This repository uses third party software:
+* [pre-commit](https://pre-commit.com/) - Used to help ensure code and documentation consistency
+  * Install with `brew install pre-commit`
+  * Manually use with `pre-commit run`
+* [terraform 0.14.11](https://releases.hashicorp.com/terraform/0.14.11/) For backwards compatibility we are using version 0.14.11 for testing making this the min version tested and without issues with terraform-docs.
+* [terraform-docs](https://github.com/segmentio/terraform-docs) - Used to generate the [Inputs](#Inputs) and [Outputs](#Outputs) sections
+  * Install with `brew install terraform-docs`
+  * Manually use via pre-commit
+* [tflint](https://github.com/terraform-linters/tflint) - Used to lint the Terraform code
+  * Install with `brew install tflint`
+  * Manually use via pre-commit
+
+### Makefile
+The makefile contain in this repo is optimised for linux paths and the main purpose is to execute testing for now.
+* Create all tests:
+`$ make tests`
+* Clean all tests:
+`$ make clean`
+
+#### BOLDLink-SIG 2022
