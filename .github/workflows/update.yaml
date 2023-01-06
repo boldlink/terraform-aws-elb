@@ -6,7 +6,7 @@ on:
 
 jobs:
   update-files:
-    uses: boldlink/terraform-module-support/.github/workflows/update.yaml@1.0.0
+    uses: boldlink/terraform-module-support/.github/workflows/update.yaml@main
     secrets:
       AUTOMATION_TOKEN: ${{ secrets.AUTOMATION_TOKEN }}
       SLACK_WEBHOOK : ${{secrets.SLACK_WEBHOOK}}
