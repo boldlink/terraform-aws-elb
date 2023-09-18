@@ -49,7 +49,7 @@ variable "internal" {
 variable "access_logs_kms_id" {
   type        = string
   description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access_logs_sse_algorithm as `aws:kms`."
-  default     = false
+  default     = null
 }
 
 variable "access_logs_sse_algorithm" {

@@ -32,12 +32,12 @@ resource "aws_elb" "main" {
   }
 
   dynamic "access_logs" {
-    for_each = length(keys(var.access_logs)) == 0 ? [] : [var.access_logs]
+    for_each = var.create_access_logs_bucket == false ? [] : [var.access_logs]
     content {
-      bucket        = var.create_access_logs_bucket ? aws_s3_bucket.access_logs.id : access_logs.value.bucket
-      bucket_prefix = lookup(access_logs.value, "bucket_prefix", null)
-      interval      = lookup(access_logs.value, "interval", 60)
-      enabled       = lookup(access_logs.value, "enabled", true)
+      bucket        = try(module.access_logs[0].id, access_logs.value.bucket) #var.create_access_logs_bucket ? module.access_logs[0].id : access_logs.value.bucket
+      bucket_prefix = try(access_logs.value.bucket_prefix, null)
+      interval      = try(access_logs.value.interval, 60)
+      enabled       = try(access_logs.value.enabled, true)
     }
   }
 
@@ -58,44 +58,17 @@ resource "aws_elb" "main" {
 ########################################################
 ### S3 bucket for access logs (optional)
 ########################################################
-resource "aws_s3_bucket" "access_logs" {
-  count  = var.create_access_logs_bucket ? 1 : 0
-  bucket = "${local.name}-acess-logs-bucket"
-}
-
-resource "aws_s3_bucket_policy" "access_logs" {
-  count  = var.create_access_logs_bucket ? 1 : 0
-  bucket = aws_s3_bucket.access_logs[0].id
-  policy = data.aws_iam_policy_document.elb_s3.json
-}
-
-resource "aws_s3_bucket_public_access_block" "access_logs" {
-  count                   = var.create_access_logs_bucket ? 1 : 0
-  bucket                  = aws_s3_bucket.access_logs[0].bucket
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_server_side_encryption_configuration" "access_logs" {
-  count  = var.create_access_logs_bucket ? 1 : 0
-  bucket = aws_s3_bucket.access_logs[0].bucket
-
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm     = var.access_logs_sse_algorithm
-      kms_master_key_id = var.access_logs_sse_algorithm == "aws:kms" ? var.access_logs_kms_id : null
-    }
-  }
-}
-
-resource "aws_s3_bucket_versioning" "trail_versioning" {
-  count  = var.create_access_logs_bucket ? 1 : 0
-  bucket = aws_s3_bucket.access_logs[0].id
-  versioning_configuration {
-    status = "Enabled"
-  }
+module "access_logs" {
+  count                  = var.create_access_logs_bucket ? 1 : 0
+  source                 = "boldlink/s3/aws"
+  version                = "2.3.0"
+  bucket                 = "${local.name}-acess-logs-bucket"
+  force_destroy          = true
+  versioning_status      = "Enabled"
+  sse_sse_algorithm      = var.access_logs_sse_algorithm
+  bucket_policy          = data.aws_iam_policy_document.elb_s3.json
+  sse_kms_master_key_arn = var.access_logs_sse_algorithm == "aws:kms" ? var.access_logs_kms_id : null
+  tags                   = var.tags
 }
 
 ########################################################
