@@ -34,7 +34,7 @@ resource "aws_elb" "main" {
   dynamic "access_logs" {
     for_each = var.create_access_logs_bucket == false ? [] : [var.access_logs]
     content {
-      bucket        = try(module.access_logs[0].id, access_logs.value.bucket) #var.create_access_logs_bucket ? module.access_logs[0].id : access_logs.value.bucket
+      bucket        = try(module.access_logs[0].id, access_logs.value.bucket)
       bucket_prefix = try(access_logs.value.bucket_prefix, null)
       interval      = try(access_logs.value.interval, 60)
       enabled       = try(access_logs.value.enabled, true)
