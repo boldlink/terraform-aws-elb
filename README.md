@@ -17,10 +17,15 @@
 
 This terraform module creates an Elastic Load Balancer (Commonly known as Classic Load Balancer) and Access logs bucket if specified
 
-Examples available [here](https://github.com/boldlink/terraform-aws-elb/tree/main/examples/main.tf)
+## Advantages of the Module
+- It creates S3 bucket for access logs when you specify the bucket to be created using `create_access_logs_bucket = true`
+- S3 bucket policy for access logs has already been configured
+- Adheres to aws security best practices by using checkov to enforce compliance
+
+Examples available [here](./examples)
 
 ## Usage
-*NOTE*: These examples use the latest version of this module
+**NOTE**: These examples use the latest version of this module
 
 ```hcl
 module "elb" {
