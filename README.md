@@ -18,9 +18,18 @@
 This terraform module creates an Elastic Load Balancer (Commonly known as Classic Load Balancer) and Access logs bucket if specified
 
 ## Advantages of the Module
-- It creates S3 bucket for access logs when you specify the bucket to be created using `create_access_logs_bucket = true`
-- S3 bucket policy for access logs has already been configured
-- Adheres to aws security best practices by using checkov to enforce compliance
+
+### 1. Simplified Access Logs Management
+- This module streamlines the creation of an Elastic Load Balancer (commonly known as Classic Load Balancer) and automatically sets up an S3 bucket for access logs. When you specify `create_access_logs_bucket = true`, the module takes care of the access logs configuration, saving you time and effort.
+
+### 2. Enhanced Security
+- Security is a top priority, and this module adheres to AWS security best practices. It enforces compliance using Checkov, ensuring that your Elastic Load Balancer is configured securely.
+
+### 3. Streamlined Operations
+- With this module, you can create and manage Elastic Load Balancers efficiently, reducing the complexity of your infrastructure provisioning process. It provides a structured and easy-to-use interface for managing load balancers.
+
+### 4. Well-Maintained and Documented
+- This module is actively maintained and regularly updated to align with the latest AWS and Terraform best practices. Detailed documentation is available to assist you in using and customizing the module to meet your specific requirements.
 
 Examples available [here](./examples)
 
