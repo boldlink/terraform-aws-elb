@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Feature: Adding acm certificate for ssl
 - fix: CKV_AWS_92  #Ensure the ELB has access logging enabled. For the minimal example, this is not enabled
+
+## [1.2.0] - 2023-09-18
+- feat: used s3 module for the access logs which in turn resolved all checkov alerts for S3 resources.
+- feat: fixed access logs condition
 - fix: CKV_AWS_144 #Ensure that S3 bucket has cross-region replication enabled
 - fix: CKV_AWS_18  #Ensure the S3 bucket has access logging enabled
 - fix: CKV_AWS_145 #Ensure that S3 buckets are encrypted with KMS by default:: We are using the default `aws/s3`. This can be overwriten by providing the value of `access_logs_kms_id`
@@ -36,8 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature: load balancer configurations
 - Initial Commit
 
-[1.0.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.1.1
+[Unreleased]: https://github.com/boldlink/terraform-aws-elb/compare/1.2.0...HEAD
 
 [1.0.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.0.0
 [1.1.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.1.0
 [1.1.1]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.1.1
+[1.2.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.2.0

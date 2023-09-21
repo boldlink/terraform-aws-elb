@@ -17,14 +17,29 @@
 
 This terraform module creates an Elastic Load Balancer (Commonly known as Classic Load Balancer) and Access logs bucket if specified
 
-Examples available [here](https://github.com/boldlink/terraform-aws-elb/tree/main/examples/main.tf)
+## Advantages of the Module
+
+### 1. Simplified Access Logs Management
+- This module streamlines the creation of an Elastic Load Balancer (commonly known as Classic Load Balancer) and automatically sets up an S3 bucket for access logs. When you specify `create_access_logs_bucket = true`, the module takes care of the access logs configuration, saving you time and effort.
+
+### 2. Enhanced Security
+- Security is a top priority, and this module adheres to AWS security best practices. It enforces compliance using Checkov, ensuring that your Elastic Load Balancer is configured securely.
+
+### 3. Streamlined Operations
+- With this module, you can create and manage Elastic Load Balancers efficiently, reducing the complexity of your infrastructure provisioning process. It provides a structured and easy-to-use interface for managing load balancers.
+
+### 4. Well-Maintained and Documented
+- This module is actively maintained and regularly updated to align with the latest AWS and Terraform best practices. Detailed documentation is available to assist you in using and customizing the module to meet your specific requirements.
+
+Examples available [here](./examples)
 
 ## Usage
-*NOTE*: These examples use the latest version of this module
+**NOTE**: These examples use the latest version of this module
 
 ```hcl
 module "elb" {
-  source             = "../../"
+  source             = "boldlink/elb/aws"
+  version            = "<latest_module_version>"
   name               = "minimal-example-elb"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [data.aws_security_group.default.id]
@@ -54,17 +69,19 @@ module "elb" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.14.11 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.0.0, <= 5.15.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.12.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
 
 ## Modules
 
-No modules.
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_access_logs"></a> [access\_logs](#module\_access\_logs) | boldlink/s3/aws | 2.3.0 |
 
 ## Resources
 
@@ -72,11 +89,6 @@ No modules.
 |------|------|
 | [aws_elb.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb) | resource |
 | [aws_load_balancer_policy.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/load_balancer_policy) | resource |
-| [aws_s3_bucket.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket) | resource |
-| [aws_s3_bucket_policy.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_policy) | resource |
-| [aws_s3_bucket_public_access_block.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_public_access_block) | resource |
-| [aws_s3_bucket_server_side_encryption_configuration.access_logs](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_server_side_encryption_configuration) | resource |
-| [aws_s3_bucket_versioning.trail_versioning](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/s3_bucket_versioning) | resource |
 | [aws_elb_service_account.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/elb_service_account) | data source |
 | [aws_iam_policy_document.elb_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
@@ -85,7 +97,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_logs"></a> [access\_logs](#input\_access\_logs) | (Optional) An Access Logs block. | `map(string)` | `{}` | no |
-| <a name="input_access_logs_kms_id"></a> [access\_logs\_kms\_id](#input\_access\_logs\_kms\_id) | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access\_logs\_sse\_algorithm as `aws:kms`. | `string` | `false` | no |
+| <a name="input_access_logs_kms_id"></a> [access\_logs\_kms\_id](#input\_access\_logs\_kms\_id) | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access\_logs\_sse\_algorithm as `aws:kms`. | `string` | `null` | no |
 | <a name="input_access_logs_sse_algorithm"></a> [access\_logs\_sse\_algorithm](#input\_access\_logs\_sse\_algorithm) | The server-side encryption algorithm to use for the elb access logs bucket. Valid values are `AES256` and `aws:kms` | `string` | `"AES256"` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | (Required for an EC2-classic ELB) The AZ's to serve traffic in. | `list(string)` | `[]` | no |
 | <a name="input_connection_draining"></a> [connection\_draining](#input\_connection\_draining) | (Optional) Boolean to enable connection draining. Default: `false` | `bool` | `false` | no |
@@ -135,10 +147,22 @@ This repository uses third party software:
   * Manually use via pre-commit
 
 ### Makefile
-The makefile contain in this repo is optimised for linux paths and the main purpose is to execute testing for now.
-* Create all tests:
-`$ make tests`
-* Clean all tests:
-`$ make clean`
+The makefile contained in this repo is optimized for linux paths and the main purpose is to execute testing for now.
+* Create all tests stacks including any supporting resources:
+```console
+make tests
+```
+* Clean all tests *except* existing supporting resources:
+```console
+make clean
+```
+* Clean supporting resources - this is done separately so you can test your module build/modify/destroy independently.
+```console
+make cleansupporting
+```
+* !!!DANGER!!! Clean the state files from examples and test/supportingResources - use with CAUTION!!!
+```console
+make cleanstatefiles
+```
 
-#### BOLDLink-SIG 2022
+#### BOLDLink-SIG 2023
