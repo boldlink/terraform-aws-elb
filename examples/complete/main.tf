@@ -58,22 +58,6 @@ module "access_logs_bucket" {
   tags              = var.tags
 }
 
-#module "ec2_instances"{
-#  source = "boldlink/ec2/aws"
-#  version = "2.0.0"
-#  count = 2
-#    name              = "${var.name}-count.index"
-#  ami               = data.aws_ami.amazon_linux.id
-#  instance_type     = "t3.small"
-#  monitoring        = true
-#  ebs_optimized     = true
-#  vpc_id            = module.vpc.vpc_id
-#  availability_zone = local.azs
-#  subnet_id         = module.vpc.private_subnet_ids[0]
-#  tags              = local.tags
-#  root_block_device = var.root_block_device
-#}
-
 module "ec2_instances" {
   source            = "boldlink/ec2/aws"
   version           = "2.0.0"
@@ -101,7 +85,7 @@ resource "aws_acm_certificate" "main" {
 
 module "complete_elb" {
   source              = "../../"
-  name                = "complete-example-elb"
+  name                = var.name
   subnets             = module.vpc.private_subnet_ids
   security_groups     = [aws_security_group.elb.id]
   availability_zones  = data.aws_availability_zones.available.names
@@ -122,7 +106,7 @@ module "complete_elb" {
     healthy_threshold   = 5
     unhealthy_threshold = 6
     timeout             = 20
-    target              = "HTTP:8000/"
+    target              = "HTTP:80/"
     interval            = 30
   }
 
