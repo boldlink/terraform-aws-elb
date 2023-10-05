@@ -79,9 +79,7 @@ module "elb" {
 
 ## Modules
 
-| Name | Source | Version |
-|------|--------|---------|
-| <a name="module_access_logs"></a> [access\_logs](#module\_access\_logs) | boldlink/s3/aws | 2.3.0 |
+No modules.
 
 ## Resources
 
@@ -89,23 +87,17 @@ module "elb" {
 |------|------|
 | [aws_elb.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/elb) | resource |
 | [aws_load_balancer_policy.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/load_balancer_policy) | resource |
-| [aws_elb_service_account.main](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/elb_service_account) | data source |
-| [aws_iam_policy_document.elb_s3](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_access_logs"></a> [access\_logs](#input\_access\_logs) | (Optional) An Access Logs block. | `map(string)` | `{}` | no |
-| <a name="input_access_logs_kms_id"></a> [access\_logs\_kms\_id](#input\_access\_logs\_kms\_id) | The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access\_logs\_sse\_algorithm as `aws:kms`. | `string` | `null` | no |
-| <a name="input_access_logs_sse_algorithm"></a> [access\_logs\_sse\_algorithm](#input\_access\_logs\_sse\_algorithm) | The server-side encryption algorithm to use for the elb access logs bucket. Valid values are `AES256` and `aws:kms` | `string` | `"AES256"` | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | (Required for an EC2-classic ELB) The AZ's to serve traffic in. | `list(string)` | `[]` | no |
 | <a name="input_connection_draining"></a> [connection\_draining](#input\_connection\_draining) | (Optional) Boolean to enable connection draining. Default: `false` | `bool` | `false` | no |
 | <a name="input_connection_draining_timeout"></a> [connection\_draining\_timeout](#input\_connection\_draining\_timeout) | (Optional) The time in seconds to allow for connections to drain. Default: `300` | `number` | `300` | no |
-| <a name="input_create_access_logs_bucket"></a> [create\_access\_logs\_bucket](#input\_create\_access\_logs\_bucket) | Specify whether to create access logs bucket | `bool` | `false` | no |
 | <a name="input_cross_zone_load_balancing"></a> [cross\_zone\_load\_balancing](#input\_cross\_zone\_load\_balancing) | (Optional) Enable cross-zone load balancing. | `bool` | `true` | no |
 | <a name="input_desync_mitigation_mode"></a> [desync\_mitigation\_mode](#input\_desync\_mitigation\_mode) | (Optional) Determines how the load balancer handles requests that might pose a security risk to an application due to HTTP desync. Valid values are `monitor`, `defensive` (default), `strictest`. | `string` | `"defensive"` | no |
-| <a name="input_elb_additional_s3_policy"></a> [elb\_additional\_s3\_policy](#input\_elb\_additional\_s3\_policy) | Provide additional custom policy for ELB access to S3 bucket created in the module. | `any` | `[]` | no |
 | <a name="input_health_check"></a> [health\_check](#input\_health\_check) | (Optional) A health\_check block. | `map(string)` | `{}` | no |
 | <a name="input_idle_timeout"></a> [idle\_timeout](#input\_idle\_timeout) | (Optional) The time in seconds that the connection is allowed to be idle. Default: `60` | `number` | `60` | no |
 | <a name="input_instances"></a> [instances](#input\_instances) | (Optional) A list of instance ids to place in the ELB pool. | `list(string)` | `[]` | no |

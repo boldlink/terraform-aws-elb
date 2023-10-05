@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature: Adding acm certificate for ssl
 - fix: CKV_AWS_92  #Ensure the ELB has access logging enabled. For the minimal example, this is not enabled
 
+## [1.3.0] - 2023-10-05
+- feat: removed s3 module resource from the root module and showcased it in complete example.
+- feat: Added ec2, vpc and security group resources to cover full module usage
+- feat: added load balancer policies to the complete example
+
 ## [1.2.0] - 2023-09-18
 - feat: used s3 module for the access logs which in turn resolved all checkov alerts for S3 resources.
 - feat: fixed access logs condition
@@ -40,9 +45,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Feature: load balancer configurations
 - Initial Commit
 
-[Unreleased]: https://github.com/boldlink/terraform-aws-elb/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/boldlink/terraform-aws-elb/compare/1.3.0...HEAD
 
 [1.0.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.0.0
 [1.1.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.1.0
 [1.1.1]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.1.1
 [1.2.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.2.0
+[1.3.0]: https://github.com/boldlink/terraform-aws-elb/releases/tag/1.3.0

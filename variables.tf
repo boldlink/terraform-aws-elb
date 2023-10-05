@@ -46,18 +46,6 @@ variable "internal" {
   default     = false
 }
 
-variable "access_logs_kms_id" {
-  type        = string
-  description = "The AWS KMS master key ID used for the SSE-KMS encryption. This can only be used when you set the value of access_logs_sse_algorithm as `aws:kms`."
-  default     = null
-}
-
-variable "access_logs_sse_algorithm" {
-  type        = string
-  description = "The server-side encryption algorithm to use for the elb access logs bucket. Valid values are `AES256` and `aws:kms`"
-  default     = "AES256"
-}
-
 variable "listeners" {
   type        = list(any)
   description = "(Required) A list of listener blocks."
@@ -68,12 +56,6 @@ variable "health_check" {
   type        = map(string)
   description = "(Optional) A health_check block."
   default     = {}
-}
-
-variable "elb_additional_s3_policy" {
-  type        = any
-  description = "Provide additional custom policy for ELB access to S3 bucket created in the module."
-  default     = []
 }
 
 variable "cross_zone_load_balancing" {
@@ -116,10 +98,4 @@ variable "load_balancer_policies" {
   type        = any
   description = "Load balancer policy resource block for single or multiple resources"
   default     = {}
-}
-
-variable "create_access_logs_bucket" {
-  type        = bool
-  description = "Specify whether to create access logs bucket"
-  default     = false
 }
