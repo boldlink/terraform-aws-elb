@@ -72,6 +72,7 @@ module "ec2_instances" {
   subnet_id         = module.vpc.private_subnet_ids[count.index % length(module.vpc.private_subnet_ids)]
   tags              = merge({ "Name" = "${var.name}-${count.index}" }, var.tags)
   root_block_device = var.root_block_device
+  user_data         = base64encode(var.user_data_base64)
 }
 
 resource "aws_acm_certificate" "main" {

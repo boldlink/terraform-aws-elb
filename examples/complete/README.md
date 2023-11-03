@@ -64,6 +64,7 @@
 | <a name="input_name"></a> [name](#input\_name) | The name of the ELB | `string` | `"complete-example-elb"` | no |
 | <a name="input_root_block_device"></a> [root\_block\_device](#input\_root\_block\_device) | Configuration block to customize details about the root block device of the instance. | `list(any)` | <pre>[<br>  {<br>    "encrypted": true,<br>    "volume_size": 15<br>  }<br>]</pre> | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Tags to apply to the resources | `map(string)` | <pre>{<br>  "Department": "DevOps",<br>  "Environment": "example",<br>  "LayerId": "cExample",<br>  "LayerName": "cExample",<br>  "Owner": "Boldlink",<br>  "Project": "Examples",<br>  "user::CostCenter": "terraform"<br>}</pre> | no |
+| <a name="input_user_data_base64"></a> [user\_data\_base64](#input\_user\_data\_base64) | Base64 encoded userdata | `string` | `"#!/bin/bash\napt update\napt install -y apache2\nsystemctl start apache2\nsystemctl enable apache2\necho \"Your sample app page is working well!\" > /var/www/html/index.html\n"` | no |
 
 ## Outputs
 
