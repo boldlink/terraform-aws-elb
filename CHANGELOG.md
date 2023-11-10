@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - Feature: Adding acm certificate for ssl
 - fix: CKV_AWS_92  #Ensure the ELB has access logging enabled. For the minimal example, this is not enabled
-- fix: `out-of-service` status for registered targets
+- fix: upgrade ec2 module version to allow traffic control to and from both elb and ec2 instance targets to prevent `out-of-service` targets
 
 ## [1.3.0] - 2023-10-05
 - feat: removed s3 module resource from the root module and showcased it in complete example.
