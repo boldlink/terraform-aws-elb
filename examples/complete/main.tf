@@ -60,7 +60,7 @@ module "access_logs_bucket" {
 
 module "ec2_instances" {
   source            = "boldlink/ec2/aws"
-  version           = "2.0.0"
+  version           = "2.0.3"
   count             = 3
   name              = "${var.name}-${count.index}"
   ami               = data.aws_ami.amazon_linux.id
@@ -72,7 +72,31 @@ module "ec2_instances" {
   subnet_id         = module.vpc.private_subnet_ids[count.index % length(module.vpc.private_subnet_ids)]
   tags              = merge({ "Name" = "${var.name}-${count.index}" }, var.tags)
   root_block_device = var.root_block_device
-  user_data         = base64encode(var.user_data_base64)
+  extra_script      = templatefile("${path.module}/httpd.sh", {})
+  install_ssm_agent = true
+  security_group_ingress = [
+    {
+      from_port   = 80
+      to_port     = 80
+      protocol    = "tcp"
+      cidr_blocks = [var.cidr_block]
+    },
+    {
+      from_port   = 443
+      to_port     = 443
+      protocol    = "tcp"
+      cidr_blocks = [var.cidr_block]
+    }
+  ]
+  security_group_egress = [
+    {
+      from_port   = 0
+      to_port     = 0
+      protocol    = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+  ]
+
 }
 
 resource "aws_acm_certificate" "main" {
@@ -87,7 +111,7 @@ resource "aws_acm_certificate" "main" {
 module "complete_elb" {
   source              = "../../"
   name                = var.name
-  subnets             = module.vpc.private_subnet_ids
+  subnets             = module.vpc.public_subnet_ids
   security_groups     = [aws_security_group.elb.id]
   availability_zones  = data.aws_availability_zones.available.names
   connection_draining = true
@@ -105,24 +129,24 @@ module "complete_elb" {
   # Health check: timeout must be less than interval
   health_check = {
     healthy_threshold   = 5
-    unhealthy_threshold = 6
+    unhealthy_threshold = 10
     timeout             = 20
-    target              = "HTTP:80/"
+    target              = "HTTP:80/index.html"
     interval            = 30
   }
 
   # Listeners
   listeners = [
     {
-      instance_port     = 8080
+      instance_port     = 80
       instance_protocol = "http"
       lb_port           = 80
       lb_protocol       = "http"
     },
     {
-      instance_port      = 3000
+      instance_port      = 80
       instance_protocol  = "http"
-      lb_port            = 3000
+      lb_port            = 443
       lb_protocol        = "https"
       ssl_certificate_id = aws_acm_certificate.main.id
     }

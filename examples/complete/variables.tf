@@ -10,19 +10,6 @@ variable "name" {
   default     = "complete-example-elb"
 }
 
-variable "user_data_base64" {
-  type        = string
-  description = "Base64 encoded userdata"
-  default     = <<-EOF
-    #!/bin/bash
-    apt update
-    apt install -y apache2
-    systemctl start apache2
-    systemctl enable apache2
-    echo "Your sample app page is working well!" > /var/www/html/index.html
-    EOF
-}
-
 variable "tags" {
   type        = map(string)
   description = "Tags to apply to the resources"
