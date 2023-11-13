@@ -1,9 +1,10 @@
 module "elb" {
   source             = "../../"
-  name               = "minimal-example-elb"
-  subnets            = data.aws_subnets.default.ids
+  name               = var.name
+  subnets            = local.public_subnets
   security_groups    = [data.aws_security_group.default.id]
   availability_zones = data.aws_availability_zones.available.names
+  tags               = local.tags
 
   # Listeners
   listeners = [

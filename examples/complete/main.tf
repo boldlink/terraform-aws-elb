@@ -20,32 +20,6 @@ resource "tls_self_signed_cert" "example" {
   ]
 }
 
-module "vpc" {
-  source                 = "boldlink/vpc/aws"
-  version                = "3.1.0"
-  name                   = var.name
-  cidr_block             = var.cidr_block
-  enable_dns_support     = true
-  enable_dns_hostnames   = true
-  enable_public_subnets  = true
-  enable_private_subnets = true
-  tags                   = var.tags
-
-  public_subnets = {
-    public = {
-      cidrs                   = local.public_subnets
-      map_public_ip_on_launch = true
-      nat                     = "single"
-    }
-  }
-
-  private_subnets = {
-    private = {
-      cidrs = local.private_subnets
-    }
-  }
-}
-
 # S3 bucket for access logs
 module "access_logs_bucket" {
   source            = "boldlink/s3/aws"
@@ -67,13 +41,14 @@ module "ec2_instances" {
   instance_type     = "t3.small"
   monitoring        = true
   ebs_optimized     = true
-  vpc_id            = module.vpc.vpc_id
-  availability_zone = local.azs[count.index % length(local.azs)]
-  subnet_id         = module.vpc.private_subnet_ids[count.index % length(module.vpc.private_subnet_ids)]
+  vpc_id            = local.vpc_id
+  availability_zone = local.private_sub_azs[count.index % length(local.private_sub_azs)]
+  subnet_id         = local.private_subnets[count.index % length(local.private_subnets)]
   tags              = merge({ "Name" = "${var.name}-${count.index}" }, var.tags)
   root_block_device = var.root_block_device
   extra_script      = templatefile("${path.module}/httpd.sh", {})
   install_ssm_agent = true
+
   security_group_ingress = [
     {
       from_port   = 80
@@ -88,6 +63,7 @@ module "ec2_instances" {
       cidr_blocks = [var.cidr_block]
     }
   ]
+
   security_group_egress = [
     {
       from_port   = 0
@@ -111,7 +87,7 @@ resource "aws_acm_certificate" "main" {
 module "complete_elb" {
   source              = "../../"
   name                = var.name
-  subnets             = module.vpc.public_subnet_ids
+  subnets             = local.public_subnets
   security_groups     = [aws_security_group.elb.id]
   availability_zones  = data.aws_availability_zones.available.names
   connection_draining = true

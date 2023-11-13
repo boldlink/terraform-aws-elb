@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: removed s3 module resource from the root module and showcased it in complete example.
 - feat: Added ec2, vpc and security group resources to cover full module usage
 - feat: added load balancer policies to the complete example
+- feat: Added supporting resources
 
 ## [1.2.0] - 2023-09-18
 - feat: used s3 module for the access logs which in turn resolved all checkov alerts for S3 resources.

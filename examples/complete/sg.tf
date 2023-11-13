@@ -1,7 +1,7 @@
 resource "aws_security_group" "elb" {
   name        = "${var.name}-security-group"
   description = "Allow elb inbound traffic"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = local.vpc_id
   tags        = local.tags
 }
 

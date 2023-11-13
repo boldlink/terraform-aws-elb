@@ -24,6 +24,12 @@ variable "tags" {
   }
 }
 
+variable "supporting_resources_name" {
+  type        = string
+  description = "Name of the supporting resources"
+  default     = "terraform-aws-elb"
+}
+
 variable "root_block_device" {
   description = "Configuration block to customize details about the root block device of the instance."
   type        = list(any)
