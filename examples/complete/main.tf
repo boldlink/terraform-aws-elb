@@ -98,7 +98,7 @@ module "complete_elb" {
   access_logs = {
     bucket        = module.access_logs_bucket.id
     bucket_prefix = "ELBLogs"
-    interval      = 60
+    interval      = 5
     enabled       = true
   }
 
