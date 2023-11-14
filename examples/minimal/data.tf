@@ -1,16 +1,24 @@
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
+data "aws_vpc" "supporting" {
   filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+    name   = "tag:Name"
+    values = [var.supporting_resources_name]
   }
 }
 
+data "aws_subnets" "public" {
+  filter {
+    name   = "tag:Name"
+    values = ["${var.supporting_resources_name}*.pub.*"]
+  }
+}
+
+data "aws_subnet" "public" {
+  for_each = toset(data.aws_subnets.public.ids)
+  id       = each.value
+}
+
 data "aws_security_group" "default" {
-  vpc_id = data.aws_vpc.default.id
+  vpc_id = data.aws_vpc.supporting.id
 
   filter {
     name   = "group-name"

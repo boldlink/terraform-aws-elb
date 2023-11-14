@@ -1,13 +1,6 @@
-########################################################
 ### ELB
-########################################################
-locals {
-  name            = var.name
-  service_account = data.aws_elb_service_account.main.arn
-}
-
 resource "aws_elb" "main" {
-  name                        = local.name
+  name                        = var.name
   availability_zones          = var.subnets != null ? null : var.availability_zones
   name_prefix                 = var.name_prefix
   security_groups             = var.security_groups
@@ -32,9 +25,9 @@ resource "aws_elb" "main" {
   }
 
   dynamic "access_logs" {
-    for_each = var.create_access_logs_bucket == false ? [] : [var.access_logs]
+    for_each = length(keys(var.access_logs)) == 0 ? [] : [var.access_logs]
     content {
-      bucket        = try(module.access_logs[0].id, access_logs.value.bucket)
+      bucket        = try(access_logs.value.bucket, null)
       bucket_prefix = try(access_logs.value.bucket_prefix, null)
       interval      = try(access_logs.value.interval, 60)
       enabled       = try(access_logs.value.enabled, true)
@@ -55,35 +48,17 @@ resource "aws_elb" "main" {
   tags = var.tags
 }
 
-########################################################
-### S3 bucket for access logs (optional)
-########################################################
-module "access_logs" {
-  count                  = var.create_access_logs_bucket ? 1 : 0
-  source                 = "boldlink/s3/aws"
-  version                = "2.3.0"
-  bucket                 = "${local.name}-acess-logs-bucket"
-  force_destroy          = true
-  versioning_status      = "Enabled"
-  sse_sse_algorithm      = var.access_logs_sse_algorithm
-  bucket_policy          = data.aws_iam_policy_document.elb_s3.json
-  sse_kms_master_key_arn = var.access_logs_sse_algorithm == "aws:kms" ? var.access_logs_kms_id : null
-  tags                   = var.tags
-}
-
-########################################################
-### ELB Policy: commonly for ssl negotiation
-########################################################
+#ELB Policy: commonly for ssl negotiation
 resource "aws_load_balancer_policy" "main" {
   for_each           = var.load_balancer_policies
   load_balancer_name = aws_elb.main.name
   policy_name        = try(each.value.policy_name, each.key)
   policy_type_name   = try(each.value.policy_type_name, each.key)
   dynamic "policy_attribute" {
-    for_each = try([each.value.policy_attribute], [])
+    for_each = try(each.value.policy_attributes, each.value.policy_attribute, [])
     content {
-      name  = lookup(policy_attribute.value, "name", null)
-      value = lookup(policy_attribute.value, "value", null)
+      name  = try(policy_attribute.value.name, null)
+      value = try(policy_attribute.value.value, null)
     }
   }
 }
