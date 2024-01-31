@@ -28,7 +28,7 @@
 | Name | Version |
 |------|---------|
 | <a name="provider_aws"></a> [aws](#provider\_aws) | 5.15.0 |
-| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.4 |
+| <a name="provider_tls"></a> [tls](#provider\_tls) | 4.0.5 |
 
 ## Modules
 
@@ -91,4 +91,4 @@ This repository uses third party software:
   * Install with `brew install tflint`
   * Manually use via pre-commit
 
-#### BOLDLink-SIG 2023
+#### BOLDLink-SIG 2024
